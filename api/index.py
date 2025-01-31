@@ -9,7 +9,7 @@ app = Flask(__name__)
 app.config["MONGO_URI"] = "mongodb+srv://joelnp:joel16@cluster0.qcsid.mongodb.net/rober?retryWrites=true&w=majority"
 mongo = PyMongo(app)
 
-CORS(app, resources={r"/*": {"origins": "https://frontapi-six.vercel.app"}},
+CORS(app, resources={r"/api/*": {"origins": "https://frontflask.vercel.app"}})
      methods=["GET", "POST", "PUT", "DELETE"],
      allow_headers=["Content-Type", "Authorization"])
 
