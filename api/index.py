@@ -77,21 +77,26 @@ def crear_usuario():
         if not data:
             return jsonify({"error": "No se enviaron datos"}), 400
 
+        id_usuario = data.get('id')  # Obtener el ID manual
         nombre = data.get('nombre')
         apellido = data.get('apellido')
 
-        if not nombre or not apellido:
-            return jsonify({"error": "Faltan campos obligatorios: 'nombre' y 'apellido'"}), 400
+        if not nombre or not apellido or id_usuario is None:
+            return jsonify({"error": "Faltan campos obligatorios: 'id', 'nombre', 'apellido'"}), 400
 
-        nuevo_usuario = {"nombre": nombre, "apellido": apellido}
+        # Verificar si ya existe un usuario con el mismo ID
+        if mongo.db.usuarios.find_one({"id": id_usuario}):
+            return jsonify({"error": f"Ya existe un usuario con el ID {id_usuario}"}), 400
+
+        nuevo_usuario = {"id": id_usuario, "nombre": nombre, "apellido": apellido}
         resultado = mongo.db.usuarios.insert_one(nuevo_usuario)
         nuevo_usuario["_id"] = str(resultado.inserted_id)
 
-        response = make_response(jsonify(nuevo_usuario), 201)
-        response.headers["Access-Control-Allow-Origin"] = "https://frontflask.vercel.app"
-        return response
+        return jsonify(nuevo_usuario), 201
     except Exception as e:
+        print(f"Error en /api/crear: {e}")  
         return jsonify({"error": f"Error al crear usuario: {str(e)}"}), 500
+
 
 # 🔹 Manejar solicitudes OPTIONS para CORS
 @app.route("/api/usuarios1", methods=["OPTIONS"])
