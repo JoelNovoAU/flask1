@@ -52,14 +52,19 @@ def get_primer_usuario():
 @app.route('/api/usuarios/<id>', methods=['GET'])
 def get_usuario_by_id(id):
     try:
-        usuario = mongo.db.usuarios.find_one({"_id": ObjectId(id)})
+        # Verificar si el ID tiene formato válido de ObjectId
+        if not ObjectId.is_valid(id):
+            return jsonify({"error": "ID inválido"}), 400
+        
+        usuario = mongo.db.usuarios.find_one({"_id": ObjectId(id)})  # ✅ Buscar correctamente por _id
         if not usuario:
             return jsonify({"error": "Usuario no encontrado"}), 404
         
-        usuario["_id"] = str(usuario["_id"])
+        usuario["_id"] = str(usuario["_id"])  # Convertir ObjectId a string
         return jsonify(usuario), 200
     except Exception as e:
         return jsonify({"error": f"Error al obtener usuario: {str(e)}"}), 500
+
 
 # 🔹 Crear un usuario
 @app.route('/api/crear', methods=['POST'])
